@@ -15,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
     private Map<Integer, Film> films = new HashMap<>();
+    protected Integer idCounter = 0;
 
     @GetMapping
     public Collection<Film> getAll() {
@@ -66,10 +67,6 @@ public class FilmController {
     }
 
     private int getNextId() {
-        return films.keySet()
-                .stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0) + 1;
+        return ++idCounter;
     }
 }

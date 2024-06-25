@@ -16,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
     private Map<Integer, User> users = new HashMap<>();
+    protected Integer idCounter = 0;
 
     @GetMapping
     public Collection<User> getAll() {
@@ -64,10 +65,6 @@ public class UserController {
     }
 
     private int getNextId() {
-        return users.keySet()
-                .stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0) + 1;
+        return ++idCounter;
     }
 }
