@@ -19,7 +19,7 @@ class FilmControllerTest {
     void setUp() {
         filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
         verifiedFilm = Film.builder()
-                .id(1)
+                .id(1L)
                 .name("Name")
                 .description("Description")
                 .releaseDate(LocalDate.of(2020, 1, 1))

@@ -7,11 +7,11 @@ import java.util.Collection;
 public interface FilmStorage {
     Film create(Film film);
 
-    Film get(Integer id);
+    Film get(Long id);
 
     Collection<Film> getAll();
 
     Film update(Film film);
 
-    void delete(Integer id);
+    void delete(Long id);
 }

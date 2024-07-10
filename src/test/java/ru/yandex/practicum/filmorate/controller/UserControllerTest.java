@@ -19,7 +19,7 @@ class UserControllerTest {
     void setUp() {
         userController = new UserController(new UserService(new InMemoryUserStorage()));
         verifiedUser = User.builder()
-                .id(1)
+                .id(1L)
                 .email("email@domen.com")
                 .login("Login")
                 .birthday(LocalDate.of(1984, 12, 26))
