@@ -7,6 +7,8 @@ import java.util.Collection;
 public interface FilmStorage {
     Film create(Film film);
 
+    boolean checkFilmExists(Long filmId);
+
     Film get(Long id);
 
     Collection<Film> getAll();
@@ -14,4 +16,10 @@ public interface FilmStorage {
     Film update(Film film);
 
     void delete(Long id);
+
+    void addLike(Long filmId, Long userId);
+
+    Collection<Film> getMostPopular(long count);
+
+    void removeLike(Long filmId, Long userId);
 }
