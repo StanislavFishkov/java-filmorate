@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import org.slf4j.Logger;
-
 public class ValidationException extends RuntimeException {
-    public ValidationException(String message, Logger log) {
+    public ValidationException(String message) {
         super(message);
-        log.warn(message);
     }
 }
