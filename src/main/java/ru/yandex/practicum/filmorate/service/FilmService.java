@@ -6,39 +6,55 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.genre.GenreRepository;
+import ru.yandex.practicum.filmorate.repository.mpa.MpaRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
-
+    private final FilmRepository filmRepository;
+    private final UserRepository userRepository;
+    private final MpaRepository mpaRepository;
+    private final GenreRepository genreRepository;
 
     public final Film create(Film film) {
         checkFilmConstraints(film);
 
-        Film createdFilm = filmStorage.create(film);
+        if (film.getMpa() != null && !mpaRepository.checkMpaExists(film.getMpa().getId())) {
+            throw new ValidationException("Mpa rating can't be found on creating film by id: " + film.getMpa().getId());
+        }
+        if (!genreRepository.checkGenresExist(
+                film.getGenres().stream()
+                        .map(Genre::getId)
+                        .collect(Collectors.toList()))
+        ) {
+            throw new ValidationException("Not all Genres can be found on creating film by ids: " + film.getGenres());
+        }
+
+        Film createdFilm = filmRepository.create(film);
         log.info("Film is created: {}", createdFilm);
         return createdFilm;
     }
 
     public Collection<Film> getAll() {
-        return filmStorage.getAll();
+        return filmRepository.getAll();
     }
 
     public Film get(long filmId) {
-        if (!filmStorage.checkFilmExists(filmId)) {
+        if (!filmRepository.checkFilmExists(filmId)) {
             throw new NotFoundException("Film can't be found on getting by id: " + filmId);
         }
 
         log.trace("User is requested by id: {}", filmId);
-        return filmStorage.get(filmId);
+        return filmRepository.get(filmId);
     }
 
     public Film update(Film newFilm) {
@@ -46,10 +62,21 @@ public class FilmService {
             throw new ValidationException("Film id can't be null on update: " + newFilm);
         }
 
-        if (filmStorage.get(newFilm.getId()) != null) {
+        if (filmRepository.get(newFilm.getId()) != null) {
             checkFilmConstraints(newFilm);
+            if (newFilm.getMpa() != null && !mpaRepository.checkMpaExists(newFilm.getMpa().getId())) {
+                throw new ValidationException("Mpa rating can't be found on updating film by id: " +
+                        newFilm.getMpa().getId());
+            }
+            if (!genreRepository.checkGenresExist(
+                    newFilm.getGenres().stream()
+                            .map(Genre::getId)
+                            .collect(Collectors.toList()))
+            ) {
+                throw new ValidationException("Not all Genres can be found on updating film by ids: " + newFilm.getGenres());
+            }
 
-            Film updatedFilm = filmStorage.update(newFilm);
+            Film updatedFilm = filmRepository.update(newFilm);
             log.info("Film is updated: {}", updatedFilm);
             return updatedFilm;
         }
@@ -57,30 +84,30 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        if (!filmStorage.checkFilmExists(filmId)) {
+        if (!filmRepository.checkFilmExists(filmId)) {
             throw new NotFoundException("Film can't be found on adding like by id: " + filmId);
         }
-        if (!userStorage.checkUserExists(userId)) {
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on adding like by id: " + userId);
         }
 
-        filmStorage.addLike(filmId, userId);
+        filmRepository.addLike(filmId, userId);
         log.info("User with id {} added a like to film with id {}", userId, filmId);
     }
 
     public Collection<Film> getMostPopular(long count) {
-        return filmStorage.getMostPopular(count);
+        return filmRepository.getMostPopular(count);
     }
 
-    public void removeLike(Long filmId, Long userId)  {
-        if (!filmStorage.checkFilmExists(filmId)) {
+    public void removeLike(Long filmId, Long userId) {
+        if (!filmRepository.checkFilmExists(filmId)) {
             throw new NotFoundException("Film can't be found on removing like by id: " + filmId);
         }
-        if (!userStorage.checkUserExists(userId)) {
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on removing like by id: " + userId);
         }
 
-        filmStorage.removeLike(filmId, userId);
+        filmRepository.removeLike(filmId, userId);
         log.info("User with id {} removed a like from film with id {}", userId, filmId);
     }
 
