@@ -36,7 +36,7 @@ public class JdbcFilmRepository implements FilmRepository {
                 .build();
     }
 
-    private static class mapOrderedResultSetToFilms implements ResultSetExtractor<Collection<Film>> {
+    private static class MapOrderedResultSetToFilms implements ResultSetExtractor<Collection<Film>> {
         @Override
         public Collection<Film> extractData(ResultSet rs) throws SQLException, DataAccessException {
             Collection<Film> films = new LinkedList<>();
@@ -63,7 +63,7 @@ public class JdbcFilmRepository implements FilmRepository {
         }
     }
 
-    public void setFilmGenres(Film film) {
+    private void setFilmGenres(Film film) {
         String sqlQuery = "DELETE FROM \"film_genre\" WHERE \"film_id\" = :film_id;";
         jdbc.update(sqlQuery, new MapSqlParameterSource("film_id", film.getId()));
 
@@ -137,7 +137,7 @@ public class JdbcFilmRepository implements FilmRepository {
                 "LEFT JOIN \"genre\" AS genre ON fg.\"genre_id\" = genre.\"genre_id\" " +
                 "ORDER BY f.\"film_id\";";
 
-        return jdbc.query(sqlQuery, new mapOrderedResultSetToFilms());
+        return jdbc.query(sqlQuery, new MapOrderedResultSetToFilms());
     }
 
     @Override
@@ -183,7 +183,7 @@ public class JdbcFilmRepository implements FilmRepository {
                 "ORDER BY p.likesCount DESC, f.\"film_id\";";
 
         return jdbc.query(sqlQuery, new MapSqlParameterSource("count", count),
-                new mapOrderedResultSetToFilms());
+                new MapOrderedResultSetToFilms());
     }
 
     @Override

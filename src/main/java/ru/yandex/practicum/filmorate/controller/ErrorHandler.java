@@ -18,11 +18,11 @@ import java.util.List;
 @RestControllerAdvice
 public class ErrorHandler {
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ErrorResponse handleAnyOtherException(Throwable e) {
-//        return new ErrorResponse("An unexpected error occurred");
-//    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleAnyOtherException(Throwable e) {
+        return new ErrorResponse("An unexpected error occurred");
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
