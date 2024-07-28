@@ -34,6 +34,10 @@ public class UserService {
     public User create(User user) {
         checkUserConstraints(user);
 
+        if (userRepository.checkUserExistsByEmail(user)) {
+            throw new ValidationException("User already exists on create by email: " + user.getEmail());
+        }
+
         User createdUser = userRepository.create(user);
         log.info("User was created: {}", createdUser);
         return createdUser;
@@ -49,12 +53,19 @@ public class UserService {
 
         checkUserConstraints(newUser);
 
+        if (userRepository.checkUserExistsByEmail(newUser)) {
+            throw new ValidationException("Another user already exists on update by email: " + newUser.getEmail());
+        }
+
         User updatedUser = userRepository.update(newUser);
         log.info("User was updated: {}", updatedUser);
         return updatedUser;
     }
 
     public void addFriend(Long userId, Long friendId) {
+        if (userId.equals(friendId)) {
+            throw new ValidationException("User can't add himself as a friend on adding friend by id: " + userId);
+        }
         if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on adding friend by id: " + userId);
         }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    @JsonIgnore
     private final Set<Long> friends = new HashSet<>();
 
     public Map<String, Object> toMap() {

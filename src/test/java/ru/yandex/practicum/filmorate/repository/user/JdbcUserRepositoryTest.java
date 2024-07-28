@@ -49,6 +49,17 @@ class JdbcUserRepositoryTest {
     }
 
     @Test
+    @DisplayName("checkUserExistsByEmail() works properly on existing and lacking emails and ids.")
+    void checkUserExistsByEmail() {
+        assertThat(jdbcUserRepository.checkUserExistsByEmail(getTestUser().toBuilder().id(999L).build())).isTrue();
+        assertThat(jdbcUserRepository.checkUserExistsByEmail(getTestUser().toBuilder().id(null).build())).isTrue();
+
+        assertThat(jdbcUserRepository.checkUserExistsByEmail(getTestUser())).isFalse();
+        assertThat(jdbcUserRepository.checkUserExistsByEmail(getTestNewUser())).isFalse();
+    }
+
+
+    @Test
     @DisplayName("get() returns correct user.")
     void get() {
         User user = jdbcUserRepository.get(TEST_USER_ID);

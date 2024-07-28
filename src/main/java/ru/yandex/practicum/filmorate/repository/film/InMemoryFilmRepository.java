@@ -12,15 +12,15 @@ public class InMemoryFilmRepository implements FilmRepository {
     private Long idCounter = 0L;
 
     @Override
+    public boolean checkFilmExists(Long filmId) {
+        return films.containsKey(filmId);
+    }
+
+    @Override
     public Film create(Film film) {
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
-    }
-
-    @Override
-    public boolean checkFilmExists(Long filmId) {
-        return films.containsKey(filmId);
     }
 
     @Override

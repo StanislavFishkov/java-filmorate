@@ -80,6 +80,13 @@ public class JdbcFilmRepository implements FilmRepository {
     }
 
     @Override
+    public boolean checkFilmExists(Long filmId) {
+        String sqlQuery = "SELECT COUNT(*) FROM \"film\" WHERE \"film_id\" = :film_id;";
+
+        return 1 == jdbc.queryForObject(sqlQuery, new MapSqlParameterSource("film_id", filmId), Integer.class);
+    }
+
+    @Override
     public Film create(Film film) {
         String sqlQuery = "INSERT INTO \"film\" " +
                 "(\"name\", \"description\", \"release_date\", \"duration\", \"mpa_rating_id\") " +
@@ -93,13 +100,6 @@ public class JdbcFilmRepository implements FilmRepository {
         setFilmGenres(film);
 
         return film;
-    }
-
-    @Override
-    public boolean checkFilmExists(Long filmId) {
-        String sqlQuery = "SELECT COUNT(*) FROM \"film\" WHERE \"film_id\" = :film_id;";
-
-        return 1 == jdbc.queryForObject(sqlQuery, new MapSqlParameterSource("film_id", filmId), Integer.class);
     }
 
     @Override

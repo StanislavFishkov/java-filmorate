@@ -5,9 +5,11 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
 
 public interface UserRepository {
-    User create(User user);
-
     boolean checkUserExists(Long userId);
+
+    boolean checkUserExistsByEmail(User user);
+
+    User create(User user);
 
     User get(Long userId);
 

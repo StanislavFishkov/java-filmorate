@@ -30,6 +30,22 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    public boolean checkUserExists(Long userId) {
+        String sqlQuery = "SELECT COUNT(*) FROM \"user\" WHERE \"user_id\" = :user_id;";
+
+        return 1 == jdbc.queryForObject(sqlQuery, new MapSqlParameterSource("user_id", userId), Integer.class);
+    }
+
+    @Override
+    public boolean checkUserExistsByEmail(User user) {
+        String sqlQuery = "SELECT COUNT(*) FROM \"user\" WHERE \"email\" = :email" +
+                (user.getId() == null ? "" : " AND \"user_id\" <> :user_id") + ";";
+
+
+        return 1 == jdbc.queryForObject(sqlQuery, new MapSqlParameterSource(user.toMap()), Integer.class);
+    }
+
+    @Override
     public User create(User user) {
         String sqlQuery = "INSERT INTO \"user\" (\"email\", \"login\", \"name\", \"birthday\") " +
                 "VALUES (:email, :login, :name, :birthday);";
@@ -40,13 +56,6 @@ public class JdbcUserRepository implements UserRepository {
         user.setId(keyHolder.getKeyAs(Long.class));
 
         return user;
-    }
-
-    @Override
-    public boolean checkUserExists(Long userId) {
-        String sqlQuery = "SELECT COUNT(*) FROM \"user\" WHERE \"user_id\" = :user_id;";
-
-        return 1 == jdbc.queryForObject(sqlQuery, new MapSqlParameterSource("user_id", userId), Integer.class);
     }
 
     @Override

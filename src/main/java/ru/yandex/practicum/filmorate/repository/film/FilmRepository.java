@@ -5,9 +5,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 
 public interface FilmRepository {
-    Film create(Film film);
-
     boolean checkFilmExists(Long filmId);
+
+    Film create(Film film);
 
     Film get(Long filmId);
 

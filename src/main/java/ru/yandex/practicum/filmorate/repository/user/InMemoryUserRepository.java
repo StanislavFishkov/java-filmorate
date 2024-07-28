@@ -12,15 +12,21 @@ public class InMemoryUserRepository implements UserRepository {
     protected Long idCounter = 0L;
 
     @Override
+    public boolean checkUserExists(Long userId) {
+        return users.containsKey(userId);
+    }
+
+    @Override
+    public boolean checkUserExistsByEmail(User user) {
+        return users.values().stream()
+                .anyMatch(u -> u.getEmail().equals(user.getEmail()) && !u.getId().equals(user.getId()));
+    }
+
+    @Override
     public User create(User user) {
         user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
-    }
-
-    @Override
-    public boolean checkUserExists(Long userId) {
-        return users.containsKey(userId);
     }
 
     @Override
