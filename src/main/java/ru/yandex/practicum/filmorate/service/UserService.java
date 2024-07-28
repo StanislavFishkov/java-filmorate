@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -15,26 +15,30 @@ import java.util.Collection;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     public Collection<User> getAll() {
         log.trace("List of all users is requested");
-        return userStorage.getAll();
+        return userRepository.getAll();
     }
 
     public User get(long userId) {
-        if (!userStorage.checkUserExists(userId)) {
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on getting by id: " + userId);
         }
 
         log.trace("User is requested by id: {}", userId);
-        return userStorage.get(userId);
+        return userRepository.get(userId);
     }
 
     public User create(User user) {
         checkUserConstraints(user);
 
-        User createdUser = userStorage.create(user);
+        if (userRepository.checkUserExistsByEmail(user)) {
+            throw new ValidationException("User already exists on create by email: " + user.getEmail());
+        }
+
+        User createdUser = userRepository.create(user);
         log.info("User was created: {}", createdUser);
         return createdUser;
     }
@@ -43,58 +47,65 @@ public class UserService {
         if (newUser.getId() == null) {
             throw new ValidationException("User id can't be null on update: " + newUser);
         }
-        if (!userStorage.checkUserExists(newUser.getId())) {
+        if (!userRepository.checkUserExists(newUser.getId())) {
             throw new NotFoundException("User can't be found on update by id: " + newUser);
         }
 
         checkUserConstraints(newUser);
 
-        User updatedUser = userStorage.update(newUser);
+        if (userRepository.checkUserExistsByEmail(newUser)) {
+            throw new ValidationException("Another user already exists on update by email: " + newUser.getEmail());
+        }
+
+        User updatedUser = userRepository.update(newUser);
         log.info("User was updated: {}", updatedUser);
         return updatedUser;
     }
 
     public void addFriend(Long userId, Long friendId) {
-        if (!userStorage.checkUserExists(userId)) {
+        if (userId.equals(friendId)) {
+            throw new ValidationException("User can't add himself as a friend on adding friend by id: " + userId);
+        }
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on adding friend by id: " + userId);
         }
-        if (!userStorage.checkUserExists(friendId)) {
+        if (!userRepository.checkUserExists(friendId)) {
             throw new NotFoundException("Friend can't be found on adding friend by id: " + friendId);
         }
 
-        userStorage.addFriend(userId, friendId);
+        userRepository.addFriend(userId, friendId);
         log.info("User with id {} added a friend with id {}", userId, friendId);
     }
 
     public Collection<User> getFriends(Long userId) {
-        if (!userStorage.checkUserExists(userId)) {
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on getting friends by id: " + userId);
         }
         log.trace("List of all friends is requested with user id: {}", userId);
-        return userStorage.getFriends(userId);
+        return userRepository.getFriends(userId);
     }
 
     public Collection<User> getMutualFriends(Long firstUserId, Long secondUserId) {
-        if (!userStorage.checkUserExists(firstUserId)) {
+        if (!userRepository.checkUserExists(firstUserId)) {
             throw new NotFoundException("User can't be found on getting mutual friends by id: " + firstUserId);
         }
-        if (!userStorage.checkUserExists(secondUserId)) {
+        if (!userRepository.checkUserExists(secondUserId)) {
             throw new NotFoundException("User can't be found on getting mutual friends by id: " + secondUserId);
         }
 
         log.trace("List of all mutual friends is requested with user ids: {}, {}", firstUserId, secondUserId);
-        return userStorage.getMutualFriends(firstUserId, secondUserId);
+        return userRepository.getMutualFriends(firstUserId, secondUserId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        if (!userStorage.checkUserExists(userId)) {
+        if (!userRepository.checkUserExists(userId)) {
             throw new NotFoundException("User can't be found on removing friend by id: " + userId);
         }
-        if (!userStorage.checkUserExists(friendId)) {
+        if (!userRepository.checkUserExists(friendId)) {
             throw new NotFoundException("Friend can't be found on removing friend by id: " + friendId);
         }
 
-        userStorage.removeFriend(userId, friendId);
+        userRepository.removeFriend(userId, friendId);
         log.info("User with id {} removed a friend with id {}", userId, friendId);
     }
 

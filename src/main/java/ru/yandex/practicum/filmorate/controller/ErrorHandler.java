@@ -19,12 +19,6 @@ import java.util.List;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleAnyOtherException(Throwable e) {
-        return new ErrorResponse("An unexpected error occurred");
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(ValidationException e) {
         log.error(e.getMessage());
